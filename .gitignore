@@ -1,0 +1,53 @@
+# ── Secrets ───────────────────────────────────────────────────────
+backend/.env
+.env
+*.pem
+*.key
+
+# ── Python ────────────────────────────────────────────────────────
+__pycache__/
+*.py[cod]
+*.pyo
+.venv/
+venv/
+.Python
+*.egg-info/
+dist/
+build/
+.pytest_cache/
+.coverage
+htmlcov/
+
+# ── Vector DB & model data ────────────────────────────────────────
+backend/data/chroma/
+backend/data/raw/
+backend/data/umlgen.db
+backend/data/manifest.json
+
+# ── Node / React ──────────────────────────────────────────────────
+frontend/node_modules/
+frontend/build/
+frontend/.env.local
+frontend/.env.development.local
+frontend/.env.test.local
+frontend/.env.production.local
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# ── OS ────────────────────────────────────────────────────────────
+.DS_Store
+Thumbs.db
+
+# ── IDE ───────────────────────────────────────────────────────────
+.idea/
+.vscode/settings.json
+*.swp
+*.swo
+
+# Garbage directories from bad glob expansion
+frontend/src/{pages,context,components/
+frontend/src/components/app/
+frontend/src/components/landing/
+frontend/src/components/ui/
+frontend/src/context/

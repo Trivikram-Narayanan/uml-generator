@@ -1,0 +1,82 @@
+version: "3.9"
+
+services:
+
+  # ── Local LLM server ─────────────────────────────────────
+  ollama:
+    image: ollama/ollama:latest
+    container_name: umlgen-ollama
+    volumes:
+      - ollama_data:/root/.ollama
+    ports:
+      - "11434:11434"
+    restart: unless-stopped
+    # Uncomment for NVIDIA GPU:
+    # deploy:
+    #   resources:
+    #     reservations:
+    #       devices:
+    #         - driver: nvidia
+    #           count: all
+    #           capabilities: [gpu]
+
+  # ── Pull model once ──────────────────────────────────────
+  ollama-pull:
+    image: ollama/ollama:latest
+    depends_on: [ollama]
+    environment:
+      OLLAMA_HOST: http://ollama:11434
+    entrypoint: sh -c "sleep 8 && ollama pull codellama:7b-code"
+    restart: "no"
+
+  # ── FastAPI backend ──────────────────────────────────────
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: umlgen-backend
+    depends_on: [ollama]
+    environment:
+      SECRET_KEY: ${SECRET_KEY:-changeme-use-openssl-rand-hex-32}
+      LLM_BACKEND: ollama
+      OLLAMA_URL: http://ollama:11434
+      OLLAMA_MODEL: codellama:7b-code
+      KROKI_URL: http://kroki:8000
+      DB_PATH: /app/data/umlgen.db
+      LLM_MAX_TOKENS: "1024"
+      LLM_TEMPERATURE: "0.2"
+    volumes:
+      - backend_data:/app/data
+    ports:
+      - "8000:8000"
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/api/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # ── Kroki diagram renderer ───────────────────────────────
+  kroki:
+    image: yuzutech/kroki:latest
+    container_name: umlgen-kroki
+    ports:
+      - "8001:8000"
+    restart: unless-stopped
+
+  # ── React frontend (nginx) ───────────────────────────────
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      args:
+        REACT_APP_API_URL: ""   # empty = same-origin (nginx proxies /api/*)
+    container_name: umlgen-frontend
+    depends_on: [backend]
+    ports:
+      - "3000:80"
+    restart: unless-stopped
+
+volumes:
+  ollama_data:
+  backend_data:
