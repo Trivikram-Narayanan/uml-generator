@@ -128,7 +128,8 @@ export default function AppPage() {
         <div className="topbar-l">
           <button className="sidebar-tog" onClick={() => setSidebarOpen(o => !o)}>☰</button>
           <div className="app-logo">
-            <span style={{ color: "var(--accent)" }}>⬡</span> UML<strong>Gen</strong>
+            <div className="logo-mark">⬡</div>
+            <span className="logo-text">UML<span>Gen</span></span>
           </div>
         </div>
         <div className="topbar-center">
@@ -196,9 +197,8 @@ export default function AppPage() {
                     {DIAGRAM_TYPES.map(t => (
                       <button key={t.value} type="button"
                         className={`type-btn ${diagramType === t.value ? "active" : ""}`}
-                        style={diagramType === t.value ? { borderColor: t.color, color: t.color, background: t.color + "18" } : {}}
                         onClick={() => setDiagramType(t.value)}>
-                        <span>{t.icon}</span> {t.label}
+                        <span className="type-icon">{t.icon}</span> {t.label}
                       </button>
                     ))}
                   </div>
